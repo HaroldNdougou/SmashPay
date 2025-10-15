@@ -5,7 +5,7 @@ import { Alert, Button, StyleSheet, Text, TextInput, View } from 'react-native';
 // Remplacez cette URL par l'adresse IP de votre machine et le port de votre backend
 // Si vous utilisez un émulateur Android, vous devrez peut-être utiliser 10.0.2.2 ou votre IP locale.
 // Si vous utilisez iOS/Expo Go, utilisez l'adresse IP locale de votre machine (par exemple, http://192.168.1.10:3000)
-const API_URL = 'http://192.168.1.10:3000/api/clients'; 
+const API_URL = 'http://172.20.10.3:3000/api/clients'; 
 
 const ClientRegistration = () => {
   const [phoneNumber, setPhoneNumber] = useState('');
@@ -23,31 +23,50 @@ const ClientRegistration = () => {
     setIsLoading(true);
 
     try {
-      const response = await axios.post(API_URL, {
+        const response = await axios.post(API_URL, {
         numero_de_telephone: phoneNumber,
         code_secret: secretCode,
         prenom: firstName,
       });
 
-      // Le statut 201 est souvent utilisé pour la création réussie
+  
       if (response.status === 201) {
         Alert.alert('Succès 🎉', 'Client enregistré avec succès!');
-        // Réinitialiser le formulaire
         setPhoneNumber('');
         setSecretCode('');
         setFirstName('');
       } else {
-        // Gérer d'autres codes de statut potentiels du backend
-        Alert.alert('Erreur', 'Échec de l\'enregistrement du client.');
+        Alert.alert('Information', 'Requête réussie, mais statut inattendu.');
       }
+
     } catch (error) {
-      console.error('Erreur lors de l\'enregistrement du client:', error);
-      // Afficher un message d'erreur plus convivial
-      Alert.alert('Erreur de connexion', 'Impossible de se connecter au serveur. Vérifiez que votre backend est en cours d\'exécution et que l\'URL est correcte.');
-    } finally {
-      setIsLoading(false);
+    console.error('Erreur lors de l\'enregistrement du client:', error);
+
+    if (axios.isAxiosError(error) && error.response) {
+      const status = error.response.status;
+
+      if (status === 400) {
+          Alert.alert('Erreur', 'Données manquantes ou format invalide (400).');
+      } else if (status === 409) {
+          Alert.alert('Erreur', 'Ce numéro de téléphone est déjà enregistré.');
+      } else if (status === 500) {
+          Alert.alert('Erreur', 'Erreur interne du serveur (500).');
+      } else {
+          Alert.alert('Erreur Serveur', `Le serveur a répondu avec l'erreur: ${status}.`);
+      }
+
+    } else if (axios.isAxiosError(error) && error.request) {
+      Alert.alert('Erreur de connexion', 'Impossible de se connecter au serveur. Vérifiez l\'URL et le statut du backend.');
+    } else {
+      Alert.alert('Erreur Inconnue', 'Une erreur s\'est produite avant l\'envoi de la requête.');
     }
-  };
+
+  } finally {
+    setIsLoading(false);
+  }
+
+
+};
 
   return (
     <View style={styles.container}>
