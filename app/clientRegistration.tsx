@@ -76,6 +76,7 @@ const ClientRegistration = () => {
         style={styles.input}
         placeholder="Numéro de Téléphone"
         placeholderTextColor="#666"
+        maxLength={8}
         value={phoneNumber}
         onChangeText={setPhoneNumber}
         keyboardType="phone-pad"
