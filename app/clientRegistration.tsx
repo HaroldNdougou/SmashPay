@@ -19,6 +19,18 @@ const ClientRegistration = () => {
       Alert.alert('Erreur', 'Veuillez remplir tous les champs.');
       return;
     }
+    if (phoneNumber.length !== 9 || isNaN(Number(phoneNumber))) {
+      Alert.alert('Erreur', 'Numéro de téléphone incorrect.');
+      return;
+    }
+    if (secretCode.length !== 4 || isNaN(Number(phoneNumber))) {
+      Alert.alert('Erreur', 'Code secret incorrect.'); 
+      return;
+    }
+    if (firstName.length > 20) {
+      Alert.alert('Erreur', 'Prénom trop long.');
+      return;
+    }
 
     setIsLoading(true);
 
@@ -46,7 +58,8 @@ const ClientRegistration = () => {
       const status = error.response.status;
 
       if (status === 400) {
-          Alert.alert('Erreur', 'Données manquantes ou format invalide (400).');
+        const errorMessage = error.response.data?.error || 'Données manquantes ou format invalide.';
+        Alert.alert('Erreur de Saisie', errorMessage);
       } else if (status === 409) {
           Alert.alert('Erreur', 'Ce numéro de téléphone est déjà enregistré.');
       } else if (status === 500) {
@@ -76,6 +89,7 @@ const ClientRegistration = () => {
         style={styles.input}
         placeholder="Numéro de Téléphone"
         placeholderTextColor="#666"
+        maxLength={9}
         value={phoneNumber}
         onChangeText={setPhoneNumber}
         keyboardType="phone-pad"
@@ -85,8 +99,10 @@ const ClientRegistration = () => {
         style={styles.input}
         placeholder="Code Secret"
         placeholderTextColor="#666"
+        maxLength={4}
         value={secretCode}
         onChangeText={setSecretCode}
+        keyboardType="number-pad"
         secureTextEntry={true} // Masque le texte pour le code secret
       />
       
@@ -94,6 +110,7 @@ const ClientRegistration = () => {
         style={styles.input}
         placeholder="Prénom"
         placeholderTextColor="#666"
+        maxLength={20}
         value={firstName}
         onChangeText={setFirstName}
       />
