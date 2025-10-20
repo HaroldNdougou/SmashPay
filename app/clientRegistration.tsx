@@ -1,11 +1,16 @@
 import axios from 'axios'; // Assurez-vous d'installer axios : npm install axios
+import Constants from 'expo-constants'; // ✅ CORRECTION : Importation par défaut
 import React, { useState } from 'react';
 import { Alert, Button, StyleSheet, Text, TextInput, View } from 'react-native';
 
-// Remplacez cette URL par l'adresse IP de votre machine et le port de votre backend
-// Si vous utilisez un émulateur Android, vous devrez peut-être utiliser 10.0.2.2 ou votre IP locale.
-// Si vous utilisez iOS/Expo Go, utilisez l'adresse IP locale de votre machine (par exemple, http://192.168.1.10:3000)
-const API_URL = 'http://172.20.10.3:3000/api/clients'; 
+
+// 🔑 Récupérez l'URL à partir de app.json
+const FALLBACK_URL = 'http://localhost:3000/api/clients'; // URL de secours en cas de problème de config
+
+const API_URL = 
+    // Tente d'accéder à l'URL. Si expoConfig ou extra n'existe pas,
+    // l'expression complète prend la valeur après le ??
+    Constants.expoConfig?.extra?.apiUrl ?? FALLBACK_URL;
 
 const ClientRegistration = () => {
   const [phoneNumber, setPhoneNumber] = useState('');
@@ -23,7 +28,7 @@ const ClientRegistration = () => {
       Alert.alert('Erreur', 'Numéro de téléphone incorrect.');
       return;
     }
-    if (secretCode.length !== 4 || isNaN(Number(phoneNumber))) {
+    if (secretCode.length !== 4 || isNaN(Number(secretCode))) {
       Alert.alert('Erreur', 'Code secret incorrect.'); 
       return;
     }
